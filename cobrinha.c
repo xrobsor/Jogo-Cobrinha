@@ -26,7 +26,7 @@ typedef struct{
 	int y;
 }posicao;
 
-void Sleep(time_t delay);
+void Sleep(time_t delay); // nao estou usando mais essa funcao a substitui pela funcao sleep da biblioteca unistd.h
 void limpatela();
 void vaipara(int x, int y);
 //void init();
@@ -42,55 +42,31 @@ int main(){
 	char direcao_anterior = 0, dir;
 	int pos[4] = {LR_INICIAL, CR_INICIAL, LC_INICIAL, CC_INICIAL}, i = 0;
 	posicao alimento;
-	posicao cobra[100];
+	posicao cobra[100]; // esse vetor de struct posicao armazena a posiçao da matriz onde esta
+			// cada 'pedaco' do corpo da cobra para q o codigo saiba onde apagar a cobra
 
 	for(l=0;l<100;l++){
 		cobra[l].x = -1;
 		cobra[l].y = -1;
 	}
 	srand(time(NULL));
-	/*for(l=0;l<N_LINHAS;l++){
-		for(c=0;c<N_COLUNAS;c++){
-			if(l==0 || l==N_LINHAS-1){
-				tela[l][c] = '_';
-			}else if(c==0 || c==N_COLUNAS-1){
-				tela[l][c] = '|';
-			}else{
-				tela[l][c] = __ESPACO;
-			}
-		}
-	}*/
-	init(tela, cobra, comprimento);
-	//tela[alimento.x][alimento.y] = __ESPACO;
-	alimento.x = CC_INICIAL+1;//1+rand()%N_LINHAS-2;
+	init(tela, cobra, comprimento);	
+	alimento.x = 1+rand()%N_LINHAS-2;
 	alimento.y = 1+rand()%N_COLUNAS-3;
 	tela[alimento.x][alimento.y] = S_FOOD;
 	do{
-		/*l = set_snake(tela, cobra, direcao_atual, comprimento);
-		if(l){
-			direcao_atual = DIREITA;
-			init(tela, cobra, comprimento);
-			qVidas--;
-			if(qVidas<0){
-				printf("GAME OVER\n");
-				printf("COMPRIMENTO FINAL: %d\n", comprimento);
-				break;
-			}
-		}*/
 		limpatela();
 		printf("| Vidas: %d\t Comprimento: %d\t Pontos: %d |\n", qVidas, comprimento, pontos);
-		for(l=0;l<N_LINHAS;l++){
+		for(l=0;l<N_LINHAS;l++){ // esse laço mostra a matriz onde esta ocorrendo o jogo
 			for(c=0;c<N_COLUNAS;c++){
 				printf("%c", tela[l][c]);
 			}
 			printf("\n");
 		}
-		//for(l=0;l<100;l++) printf("%d,%d\n", cobra[l].x, cobra[l].y);
-		if(kbhit()){
+		if(kbhit()){ //  a função kbhit retorna verdadeiro se o usuario tiver pressionado alguma tecla			
 			getch();
 			getch();
 			dir = getch();
-			//printf("%d\t\n\n", dir);
 			switch(dir){
 				case 65:
 					direcao_atual = PCIMA;
@@ -108,7 +84,7 @@ int main(){
 		}
 		i = set_snake(tela, cobra, direcao_atual, comprimento);
 		if(i){
-			if(i==1){
+			if(i==1){ // cobra acerta a parede ou ela mesma
 				direcao_atual = DIREITA;
 				init(tela, cobra, comprimento);
 				qVidas--;
@@ -121,8 +97,7 @@ int main(){
 					printf("COMPRIMENTO FINAL: %d\n", comprimento);
 					break;
 				}
-			}else if(i==2){
-				//exit(0);
+			}else if(i==2){ // cobra acerta a comida
 				comprimento++;
 				pontos += (comprimento * 3) - 1;
 				alimento.x = 1+rand()%N_LINHAS-2;
@@ -130,14 +105,9 @@ int main(){
 				tela[alimento.x][alimento.y] = S_FOOD;
 			}
 		}
-		//scanf("1");
 		timer = clock();
-		//getchar();
-		//Sleep(1);
-		//comprimento++;
 		usleep(200000);
 	}while(1);
-	//printf("%c\n", direcao_atual);
 	return 0;
 }
 
@@ -181,67 +151,45 @@ void init(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], int comprimento){
 		}
 
 	}
-	
-	//cobra[0].x = LR_INICIAL;
-	//cobra[0].y = CR_INICIAL;
-	for(c=0; c<=COMP_INICIAL; c++){
+	for(c=0; c<=COMP_INICIAL; c++){ // inicio as posicoes da cobra
 		cobra[c].y = c+CR_INICIAL; 
 		cobra[c].x = CR_INICIAL;
 	}
-	for(l=0;l<comprimento;l++){
+	for(l=0;l<comprimento;l++){ // inicio a posicao da cobra na matriz
 		tela[cobra[l].x][cobra[l].y] = S_BODY;
 	}
-	/*for(l=LR_INICIAL; l<=LC_INICIAL; l++){
-		for(c=CR_INICIAL; c<=CC_INICIAL; c++){
-			tela[l][c] = S_BODY;
-		}
-	}*/
-	
-		
 }
 int set_snake(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], char direcao_atual, int comprimento){
 	int i;
-	//for(i=0;i<=3;i++) pos[i] = __ESPACO;
-	tela[cobra[0].x][cobra[0].y] = __ESPACO;
-
-//	cobra[comprimento].x
-	switch(direcao_atual){
+	tela[cobra[0].x][cobra[0].y] = __ESPACO; // aqui eu apago o ultimo pedaco da cobra que sera o rabo dela
+	switch(direcao_atual){ // verifico para onde a cobra esta indo
 		case DIREITA:
-			//pos[0] = pos[2];
-			//pos[1] = pos[3];
-			//pos[2]++;
-//			pos[1]++;
-//			pos[3]++;
 			cobra[comprimento].y = cobra[comprimento-1].y+1;
 		break;
 		case ESQUERDA:
-//			pos[1]--;
-//			pos[3]--;
 			cobra[comprimento].y = cobra[comprimento-1].y-1;
 		break;
 		case PCIMA:
-			//pos[1]++;
-//			pos[2]--;
 			cobra[comprimento].x = cobra[comprimento-1].x-1;
 		break;
 		case PBAIXO:
 			cobra[comprimento].x = cobra[comprimento-1].x+1;
 		break;
 	}
-	if(tela[cobra[comprimento].x][cobra[comprimento].y] != __ESPACO){
-		if(tela[cobra[comprimento].x][cobra[comprimento].y] == S_FOOD){
-			//comprimento++;
+	if(tela[cobra[comprimento].x][cobra[comprimento].y] != __ESPACO){ // verifica se a cobra acertou alguma coisa
+		if(tela[cobra[comprimento].x][cobra[comprimento].y] == S_FOOD){ // acertou a comida
 			tela[cobra[comprimento-1].x][cobra[comprimento-1].y] = S_BODY;
-			return 2;
-		}else return 1;
+			return 2; // retorna 2 qnd acerta a comida, a funcao apenas aumenta o tamanho da cobra o restante
+				// devera ser tratado na funcao main
+		}else return 1; // retorna 1 se tiver acertado a parede ou ela mesma
 	}
-	for(i=0;i<comprimento;i++){
+	for(i=0;i<comprimento;i++){// cobra[0] sera sempre o rabo da cobra, como no inicio desta funcao  nos apagamos
+				// esta posicao aqui arrastaremos o restante do vetor
 		cobra[i].x = cobra[i+1].x;
 		cobra[i].y = cobra[i+1].y;
 	}
-	//cobra[comprimento].x = cobra[comprimento].y = -1;
-//	tela[pos[0]][pos[1]] = S_BODY;
-//	tela[pos[2]][pos[3]] = S_BODY;
-	tela[cobra[comprimento-1].x][cobra[comprimento-1].y] = S_BODY;
-	return 0;
+	tela[cobra[comprimento-1].x][cobra[comprimento-1].y] = S_BODY; // aqui eu adiciono mais um pedaco do corpo da cobra
+									// como no inicio da funcao apagamos um pedaco 
+									// isso nos da a sensacao de q a cobra esta se movendo
+	return 0; // a funcao retorna 0 quando a cobra nao acerta nada, portanda nada de especial acontece apenas a cobra se move
 }
