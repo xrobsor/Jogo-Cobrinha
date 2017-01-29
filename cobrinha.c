@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "kbhit.c"
-#include <gconio.h>
+#include "gconio.h"
 #include <unistd.h>
 
 #define N_LINHAS 20
