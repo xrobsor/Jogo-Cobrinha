@@ -26,17 +26,16 @@ typedef struct{
 	int y;
 }posicao;
 
+void sortFood(char tela[N_LINHAS][N_COLUNAS]);
 void Sleep(time_t delay); // nao estou usando mais essa funcao a substitui pela funcao sleep da biblioteca unistd.h
 void limpatela();
 void vaipara(int x, int y);
-//void init();
 void init(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], int comprimento);
-//void set_snake(char tela[N_LINHAS][N_COLUNAS], int pos[4], char direcao_atual);
 int set_snake(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], char direcao_atual, int comprimento);
 
 int main(){
 	char tela[N_LINHAS][N_COLUNAS];
-	int l, c, comprimento = COMP_INICIAL, qVidas = 3, pontos = 0;
+	int l, c, comprimento = COMP_INICIAL, qVidas = 3, pontos = 0, maiorComp = 0;
 	clock_t timer;
 	char direcao_atual = DIREITA;
 	char direcao_anterior = 0, dir;
@@ -51,8 +50,8 @@ int main(){
 	}
 	srand(time(NULL));
 	init(tela, cobra, comprimento);	
-	alimento.x = 1+rand()%N_LINHAS-2;
-	alimento.y = 1+rand()%N_COLUNAS-3;
+	alimento.y = 1+rand()%N_LINHAS-2;
+	alimento.x = 1+rand()%N_COLUNAS-3;
 	tela[alimento.x][alimento.y] = S_FOOD;
 	do{
 		limpatela();
@@ -63,7 +62,7 @@ int main(){
 			}
 			printf("\n");
 		}
-		if(kbhit()){ //  a função kbhit retorna verdadeiro se o usuario tiver pressionado alguma tecla			
+		if(kbhit()){ //  a função kbhit retorna verdadeiro se o usuario tiver pressionado alguma tecla		
 			getch();
 			getch();
 			dir = getch();
@@ -86,23 +85,21 @@ int main(){
 		if(i){
 			if(i==1){ // cobra acerta a parede ou ela mesma
 				direcao_atual = DIREITA;
+				comprimento = COMP_INICIAL;
 				init(tela, cobra, comprimento);
 				qVidas--;
-				alimento.x = 1+rand()%N_LINHAS-2;
-				alimento.y = 1+rand()%N_COLUNAS-3;
-				tela[alimento.x][alimento.y] = S_FOOD;
+				sortFood(tela);
 				if(qVidas<0){
 					printf("GAME OVER\n");
 					printf("PONTUAÇÃO: %d\n", pontos);
-					printf("COMPRIMENTO FINAL: %d\n", comprimento);
+					printf("MAIOR COMPRIMENTO : %d\n", maiorComp);
 					break;
 				}
 			}else if(i==2){ // cobra acerta a comida
 				comprimento++;
+				if(comprimento > maiorComp) maiorComp = comprimento;
 				pontos += (comprimento * 3) - 1;
-				alimento.x = 1+rand()%N_LINHAS-2;
-				alimento.y = 1+rand()%N_COLUNAS-3;
-				tela[alimento.x][alimento.y] = S_FOOD;
+				sortFood(tela);
 			}
 		}
 		timer = clock();
@@ -152,12 +149,13 @@ void init(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], int comprimento){
 
 	}
 	for(c=0; c<=COMP_INICIAL; c++){ // inicio as posicoes da cobra
-		cobra[c].y = c+CR_INICIAL; 
+		cobra[c].y = c+CR_INICIAL;
 		cobra[c].x = CR_INICIAL;
 	}
 	for(l=0;l<comprimento;l++){ // inicio a posicao da cobra na matriz
 		tela[cobra[l].x][cobra[l].y] = S_BODY;
 	}
+	
 }
 int set_snake(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], char direcao_atual, int comprimento){
 	int i;
@@ -165,15 +163,19 @@ int set_snake(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], char direcao_atua
 	switch(direcao_atual){ // verifico para onde a cobra esta indo
 		case DIREITA:
 			cobra[comprimento].y = cobra[comprimento-1].y+1;
+			cobra[comprimento].x = cobra[comprimento-1].x;
 		break;
 		case ESQUERDA:
 			cobra[comprimento].y = cobra[comprimento-1].y-1;
+			cobra[comprimento].x = cobra[comprimento-1].x;
 		break;
 		case PCIMA:
 			cobra[comprimento].x = cobra[comprimento-1].x-1;
+			cobra[comprimento].y = cobra[comprimento-1].y;
 		break;
 		case PBAIXO:
 			cobra[comprimento].x = cobra[comprimento-1].x+1;
+			cobra[comprimento].y = cobra[comprimento-1].y;
 		break;
 	}
 	if(tela[cobra[comprimento].x][cobra[comprimento].y] != __ESPACO){ // verifica se a cobra acertou alguma coisa
@@ -192,4 +194,12 @@ int set_snake(char tela[N_LINHAS][N_COLUNAS], posicao cobra[], char direcao_atua
 									// como no inicio da funcao apagamos um pedaco 
 									// isso nos da a sensacao de q a cobra esta se movendo
 	return 0; // a funcao retorna 0 quando a cobra nao acerta nada, portanda nada de especial acontece apenas a cobra se move
+}
+void sortFood(char tela[N_LINHAS][N_COLUNAS]){
+	posicao alimento;
+	do{
+		alimento.x = 1+rand()%N_LINHAS-2;
+		alimento.y = 1+rand()%N_COLUNAS-3;
+	}while(tela[alimento.x][alimento.y] != __ESPACO);
+	tela[alimento.x][alimento.y] = S_FOOD;
 }
